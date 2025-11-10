@@ -1,4 +1,4 @@
-import { GoogleGenAI, GenerateContentResponse, Chat, Modality, Type, LiveSession, LiveServerMessage, ErrorEvent, CloseEvent, GenerateVideosOperation, GenerateContentParameters, FunctionDeclaration } from "@google/genai";
+import { GoogleGenAI, GenerateContentResponse, Chat, Modality, Type, LiveServerMessage, GenerateVideosOperation, GenerateContentParameters, FunctionDeclaration } from "@google/genai";
 import { AspectRatio } from '../types';
 
 export const getAi = () => new GoogleGenAI({ apiKey: process.env.API_KEY });
@@ -52,7 +52,6 @@ export const openApplicationFunctionDeclaration: FunctionDeclaration = {
 
 
 // Text Generation
-// FIX: Updated model name from 'gemini-2.5-flash-lite' to 'gemini-flash-lite-latest' to align with current API guidelines.
 export const generateText = async (prompt: string, model: 'gemini-2.5-flash' | 'gemini-flash-lite-latest' | 'gemini-2.5-pro', config?: GenerateContentParameters['config']): Promise<GenerateContentResponse> => {
     const ai = getAi();
     return await ai.models.generateContent({
@@ -62,10 +61,27 @@ export const generateText = async (prompt: string, model: 'gemini-2.5-flash' | '
     });
 };
 
+// Multimodal Text Generation (Text + Image)
+export const generateTextWithImage = async (prompt: string, base64Image: string, mimeType: string): Promise<GenerateContentResponse> => {
+    const ai = getAi();
+    const imagePart = {
+        inlineData: {
+            data: base64Image,
+            mimeType: mimeType,
+        },
+    };
+    const textPart = { text: prompt };
+
+    return await ai.models.generateContent({
+        model: 'gemini-2.5-flash', // A good model for multimodal chat
+        contents: { parts: [textPart, imagePart] },
+    });
+};
+
 // Code Debugging
 export const debugCode = async (code: string, language: string, issue: string): Promise<GenerateContentResponse> => {
     const ai = getAi();
-    const systemInstruction = `You are an expert software developer and pair programmer named Vishnu. Your role is to help users debug, understand, and improve their code.
+    const systemInstruction = `You are an expert software developer and pair programmer named Sona. Your role is to help users debug, understand, and improve their code.
 When given a code snippet, analyze it carefully.
 - If the user asks for a fix, provide the corrected code and a clear, concise explanation of the changes and why they were necessary.
 - If they ask for an explanation, describe what the code does, its potential issues, and suggest improvements in performance or readability.
@@ -232,7 +248,7 @@ export const connectLive = (callbacks: {
     onmessage: (message: LiveServerMessage) => void;
     onerror: (e: ErrorEvent) => void;
     onclose: (e: CloseEvent) => void;
-}): Promise<LiveSession> => {
+}) => {
     const ai = getAi();
     return ai.live.connect({
         model: 'gemini-2.5-flash-native-audio-preview-09-2025',
@@ -244,7 +260,7 @@ export const connectLive = (callbacks: {
             speechConfig: {
                 voiceConfig: { prebuiltVoiceConfig: { voiceName: 'Zephyr' } },
             },
-            systemInstruction: 'You are Vishnu, a friendly and helpful personal assistant.',
+            systemInstruction: 'You are Sona, a friendly and helpful personal assistant.',
             // Add the tool declaration to the live session config
             tools: [{ functionDeclarations: [openApplicationFunctionDeclaration] }],
         },

@@ -101,7 +101,7 @@ const ImageEditor: React.FC = () => {
                 {isLoading ? (
                     <div className="text-center text-gray-400">
                         <div className="w-8 h-8 mx-auto border-4 border-cyan-400 border-t-transparent rounded-full animate-spin mb-4"></div>
-                        <p>Vishnu is applying edits...</p>
+                        <p>Sona is applying edits...</p>
                     </div>
                 ) : editedImage ? (
                     <img src={editedImage} alt="Edited" className="max-w-full max-h-full rounded-lg shadow-2xl" />

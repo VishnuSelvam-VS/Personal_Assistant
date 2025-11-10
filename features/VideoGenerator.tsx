@@ -8,7 +8,7 @@ import { VideoIcon } from '../components/icons/VideoIcon';
 import { UploadIcon } from '../components/icons/UploadIcon';
 import { KeyIcon } from '../components/icons/KeyIcon';
 
-const aspectRatios: AspectRatio[] = ["16:9", "9:16"];
+const aspectRatios: AspectRatio[] = ["16:9", "9:16", "1:1", "4:3", "3:4"];
 
 const loadingMessages = [
     "Summoning digital actors...",
@@ -185,7 +185,7 @@ const VideoGenerator: React.FC = () => {
 
                 <div className="mt-4">
                     <label className="block text-sm font-medium text-gray-400 mb-2">Aspect Ratio</label>
-                    <div className="flex gap-2">
+                    <div className="flex flex-wrap gap-2">
                         {aspectRatios.map(ar => <button key={ar} onClick={() => setAspectRatio(ar)} className={`px-4 py-2 text-sm rounded-md ${aspectRatio === ar ? 'bg-cyan-600 text-white' : 'bg-gray-700 hover:bg-gray-600'}`}>{ar}</button>)}
                     </div>
                 </div>

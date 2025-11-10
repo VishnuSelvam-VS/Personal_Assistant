@@ -1,9 +1,9 @@
 import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { ChatMessage, GroundingChunk } from '../types';
-import { generateText, generateWithSearch, generateWithMaps, generateSpeech, openApplicationFunctionDeclaration, generateImage } from '../services/geminiService';
-import { handleOpenApplication } from '../utils/helpers';
+import { generateText, generateWithSearch, generateWithMaps, generateSpeech, openApplicationFunctionDeclaration, generateImage, generateTextWithImage } from '../services/geminiService';
+import { handleOpenApplication, fileToBase64 } from '../utils/helpers';
 import { UserIcon } from '../components/icons/UserIcon';
-import { VishnuIcon } from '../components/icons/VishnuIcon';
+import { SonaIcon } from '../components/icons/VishnuIcon';
 import { SendIcon } from '../components/icons/SendIcon';
 import { GlobeIcon } from '../components/icons/GlobeIcon';
 import { MapPinIcon } from '../components/icons/MapPinIcon';
@@ -17,7 +17,8 @@ import { CalendarIcon } from '../components/icons/CalendarIcon';
 import { ActionIcon } from '../components/icons/ActionIcon';
 import { SpotifyIcon } from '../components/icons/SpotifyIcon';
 import { ImageIcon } from '../components/icons/ImageIcon';
-// FIX: Import ChatIcon to be used for the WhatsApp action card.
+import { PaperclipIcon } from '../components/icons/PaperclipIcon';
+import { CloseIcon } from '../components/icons/CloseIcon';
 import { ChatIcon } from '../components/icons/ChatIcon';
 
 
@@ -25,7 +26,6 @@ type ChatMode = 'balanced' | 'fast' | 'complex' | 'web' | 'maps' | 'image';
 
 const MODE_CONFIG = {
     balanced: { model: 'gemini-2.5-flash', label: 'Balanced', icon: <SparklesIcon className="w-4 h-4" />, config: {} },
-    // FIX: Updated model name from 'gemini-2.5-flash-lite' to 'gemini-flash-lite-latest'.
     fast: { model: 'gemini-flash-lite-latest', label: 'Fast', icon: <ZapIcon className="w-4 h-4" />, config: {} },
     complex: { 
         model: 'gemini-2.5-pro', 
@@ -56,9 +56,9 @@ const ActionCard: React.FC<{ appName: string; result: string }> = ({ appName, re
     return (
         <div className="border border-purple-500/50 bg-gray-800/60 rounded-lg p-3 mt-2 backdrop-blur-sm">
             <div className="flex items-center gap-3">
-                <div className="bg-black/30 p-2 rounded-full">{icon}</div>
+                <div className="bg-black/30 p-2 rounded-full flex-shrink-0">{icon}</div>
                 <div>
-                    <h4 className="font-semibold text-purple-300">Action Taken: Open {appName}</h4>
+                    <h4 className="font-semibold text-purple-300">Action: Open {appName}</h4>
                     <p className="text-xs text-gray-300">{result}</p>
                 </div>
             </div>
@@ -68,14 +68,18 @@ const ActionCard: React.FC<{ appName: string; result: string }> = ({ appName, re
 
 const Chat: React.FC = () => {
     const [messages, setMessages] = useState<ChatMessage[]>([
-        { role: 'model', content: "I am Vishnu, your personal assistant. How can I help you today?" }
+        { role: 'model', content: "I am Sona, your personal assistant. How can I help you today?" }
     ]);
     const [input, setInput] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [mode, setMode] = useState<ChatMode>('balanced');
     const [isSpeaking, setIsSpeaking] = useState<number | null>(null);
+    const [image, setImage] = useState<{ file: File; url: string; base64: string; mimeType: string; } | null>(null);
+    
     const audioContextRef = useRef<AudioContext | null>(null);
     const chatContainerRef = useRef<HTMLDivElement>(null);
+    const fileInputRef = useRef<HTMLInputElement>(null);
+
 
     useEffect(() => {
         if (chatContainerRef.current) {
@@ -137,17 +141,59 @@ const Chat: React.FC = () => {
         }
     };
 
-    const handleSendMessage = useCallback(async () => {
-        if (!input.trim() || isLoading) return;
+    const handleFileSelect = async (file: File | null) => {
+        if (file && file.type.startsWith('image/')) {
+            try {
+                const base64 = await fileToBase64(file);
+                setImage({
+                    file: file,
+                    url: URL.createObjectURL(file),
+                    base64: base64,
+                    mimeType: file.type,
+                });
+            } catch (error) {
+                console.error("Error converting file to base64:", error);
+                alert("Could not process the selected image.");
+            }
+        }
+    };
 
-        const newUserMessage: ChatMessage = { role: 'user', content: input };
-        setMessages(prev => [...prev, newUserMessage]);
+    const handlePaste = (event: React.ClipboardEvent<HTMLTextAreaElement>) => {
+        const file = event.clipboardData.files[0];
+        if (file) {
+            handleFileSelect(file);
+        }
+    };
+
+    const handleSendMessage = useCallback(async () => {
+        if ((!input.trim() && !image) || isLoading) return;
+
         const currentInput = input;
+        const currentImage = image;
+
+        const newUserMessage: ChatMessage = { 
+            role: 'user', 
+            content: currentInput, 
+            image: currentImage?.url 
+        };
+        setMessages(prev => [...prev, newUserMessage]);
+        
         setInput('');
+        setImage(null);
         setIsLoading(true);
 
         try {
-            if (mode === 'image') {
+            if (currentImage) {
+                const response = await generateTextWithImage(currentInput, currentImage.base64, currentImage.mimeType);
+                const modelResponseContent = (
+                    <div>
+                      <div dangerouslySetInnerHTML={{ __html: response.text.replace(/\n/g, '<br />') }} />
+                    </div>
+                );
+                const newModelMessage: ChatMessage = { role: 'model', content: modelResponseContent };
+                setMessages(prev => [...prev, newModelMessage]);
+
+            } else if (mode === 'image') {
                 const imageBytes = await generateImage(currentInput, '1:1');
                 const imageUrl = `data:image/jpeg;base64,${imageBytes}`;
                 const newModelMessage: ChatMessage = { 
@@ -155,7 +201,7 @@ const Chat: React.FC = () => {
                     content: (
                         <div>
                             <p>Here is the image you requested for: "{currentInput}"</p>
-                            <img src={imageUrl} alt={currentInput} className="rounded-lg shadow-lg mt-2 max-w-sm" />
+                            <img src={imageUrl} alt={currentInput} className="rounded-lg shadow-lg mt-2 max-w-full sm:max-w-sm" />
                         </div>
                     )
                 };
@@ -234,16 +280,19 @@ const Chat: React.FC = () => {
         } finally {
             setIsLoading(false);
         }
-    }, [input, isLoading, mode]);
+    }, [input, isLoading, mode, image]);
     
     const ChatMessageBubble: React.FC<{ message: ChatMessage, index: number }> = ({ message, index }) => {
         const isUser = message.role === 'user';
         return (
-            <div className={`flex items-start gap-3 my-4 ${isUser ? 'justify-end' : ''}`}>
-                {!isUser && <div className="w-8 h-8 flex-shrink-0 rounded-full bg-gradient-to-br from-cyan-500 to-purple-600 flex items-center justify-center shadow-lg"><VishnuIcon className="w-5 h-5 text-white" /></div>}
-                <div className={`max-w-xl p-4 rounded-2xl shadow-md ${isUser ? 'bg-cyan-600 text-white rounded-br-none' : 'bg-gray-700/70 backdrop-blur-sm border border-white/10 text-gray-200 rounded-bl-none'}`}>
+            <div className={`flex items-start gap-2 sm:gap-3 my-4 ${isUser ? 'justify-end' : ''}`}>
+                {!isUser && <div className="w-8 h-8 flex-shrink-0 rounded-full bg-gradient-to-br from-cyan-500 to-purple-600 flex items-center justify-center shadow-lg"><SonaIcon className="w-5 h-5 text-white" /></div>}
+                <div className={`max-w-lg p-3 sm:p-4 rounded-2xl shadow-md ${isUser ? 'bg-cyan-600 text-white rounded-br-none' : 'bg-gray-700/70 backdrop-blur-sm border border-white/10 text-gray-200 rounded-bl-none'}`}>
                    {message.isThinking && <div className="text-xs text-purple-300 mb-2 font-medium flex items-center gap-2"><CpuIcon className="w-4 h-4" /> Thinking...</div>}
-                   <div className="prose prose-invert prose-sm max-w-none text-gray-200">{message.content}</div>
+                   {isUser && message.image && (
+                       <img src={message.image} alt="User upload" className="rounded-lg mb-2 max-w-full h-auto max-h-60" />
+                   )}
+                   {message.content && <div className="prose prose-invert prose-sm max-w-none text-gray-200">{message.content}</div>}
                    {!isUser && typeof message.content === 'string' && (
                      <button onClick={() => handlePlayTTS(message.content as string, index)} className="mt-3 text-gray-400 hover:text-cyan-300 disabled:opacity-50 transition-colors">
                         {isSpeaking === index ? <div className="w-5 h-5 border-2 border-cyan-400 border-t-transparent rounded-full animate-spin"></div> : <SpeakerIcon className="w-5 h-5"/>}
@@ -257,11 +306,11 @@ const Chat: React.FC = () => {
 
     return (
         <div className="flex flex-col h-full max-w-4xl mx-auto">
-            <div ref={chatContainerRef} className="flex-1 overflow-y-auto pr-4 -mr-4">
+            <div ref={chatContainerRef} className="flex-1 overflow-y-auto pr-2 -mr-2">
                 {messages.map((msg, index) => <ChatMessageBubble key={index} message={msg} index={index} />)}
                 {isLoading && (
                     <div className="flex items-start gap-3 my-4">
-                        <div className="w-8 h-8 flex-shrink-0 rounded-full bg-gradient-to-br from-cyan-500 to-purple-600 flex items-center justify-center"><VishnuIcon className="w-5 h-5 text-white" /></div>
+                        <div className="w-8 h-8 flex-shrink-0 rounded-full bg-gradient-to-br from-cyan-500 to-purple-600 flex items-center justify-center"><SonaIcon className="w-5 h-5 text-white" /></div>
                         <div className="max-w-xl p-4 rounded-2xl shadow-md bg-gray-700/70 backdrop-blur-sm text-gray-200 rounded-bl-none">
                             <div className="flex items-center gap-2">
                                 <div className="w-2 h-2 bg-cyan-400 rounded-full animate-pulse"></div>
@@ -272,8 +321,8 @@ const Chat: React.FC = () => {
                     </div>
                 )}
             </div>
-            <div className="mt-4 pt-4 border-t border-white/10">
-                <div className="flex items-center gap-2 mb-2 overflow-x-auto pb-2">
+            <div className="mt-auto pt-4 border-t border-white/10">
+                <div className="flex items-center gap-2 mb-2 overflow-x-auto pb-2 -mx-2 px-2">
                     {Object.keys(MODE_CONFIG).map((key) => {
                         const m = key as ChatMode;
                         return (
@@ -284,7 +333,15 @@ const Chat: React.FC = () => {
                         )
                     })}
                 </div>
-                <div className="flex items-center gap-4 bg-black/20 backdrop-blur-md border border-white/10 p-2 rounded-lg shadow-inner">
+                {image && (
+                    <div className="relative w-24 h-24 mb-2 p-1 border border-gray-600 rounded-lg">
+                        <img src={image.url} alt="Preview" className="w-full h-full object-cover rounded" />
+                        <button onClick={() => setImage(null)} className="absolute -top-2 -right-2 bg-gray-800 rounded-full p-1 text-white hover:bg-red-500 shadow-lg">
+                            <CloseIcon className="w-4 h-4" />
+                        </button>
+                    </div>
+                )}
+                <div className="flex items-center gap-2 sm:gap-4 bg-black/20 backdrop-blur-md border border-white/10 p-2 rounded-lg shadow-inner">
                     <textarea
                         value={input}
                         onChange={(e) => setInput(e.target.value)}
@@ -294,12 +351,17 @@ const Chat: React.FC = () => {
                                 handleSendMessage();
                             }
                         }}
-                        placeholder={mode === 'image' ? 'Describe the image you want to see...' : 'Ask Vishnu anything...'}
+                        onPaste={handlePaste}
+                        placeholder={mode === 'image' ? 'Describe the image you want...' : 'Ask Sona anything...'}
                         className="flex-1 bg-transparent focus:outline-none resize-none p-2 text-gray-100"
                         rows={1}
                         disabled={isLoading}
                     />
-                    <button onClick={handleSendMessage} disabled={isLoading || !input.trim()} className="p-2 bg-cyan-600 rounded-full text-white hover:bg-cyan-500 disabled:bg-gray-600 disabled:cursor-not-allowed transition-colors">
+                    <input type="file" ref={fileInputRef} onChange={(e) => handleFileSelect(e.target.files?.[0] ?? null)} accept="image/*" className="hidden"/>
+                    <button onClick={() => fileInputRef.current?.click()} disabled={isLoading} className="p-2 text-gray-400 hover:text-cyan-400 transition-colors">
+                        <PaperclipIcon className="w-5 h-5"/>
+                    </button>
+                    <button onClick={handleSendMessage} disabled={isLoading || (!input.trim() && !image)} className="p-3 bg-cyan-600 rounded-full text-white hover:bg-cyan-500 disabled:bg-gray-600 disabled:cursor-not-allowed transition-colors">
                        <SendIcon className="w-5 h-5"/>
                     </button>
                 </div>

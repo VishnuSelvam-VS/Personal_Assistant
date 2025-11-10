@@ -1,9 +1,10 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-// FIX: Import ErrorEvent and CloseEvent for proper typing of live session callbacks.
-import { LiveSession, LiveServerMessage, Blob, ErrorEvent, CloseEvent } from '@google/genai';
+import { LiveServerMessage, Blob } from '@google/genai';
 import { connectLive } from '../services/geminiService';
 import { handleOpenApplication } from '../utils/helpers';
 import { MicIcon } from '../components/icons/MicIcon';
+
+type LiveSession = Awaited<ReturnType<typeof connectLive>>;
 
 const LiveConversation: React.FC = () => {
     const [isTalking, setIsTalking] = useState(false);
@@ -42,7 +43,6 @@ const LiveConversation: React.FC = () => {
         return bytes;
     }
 
-    // FIX: Updated decodeAudioData to match guideline implementation for handling raw PCM data.
     const decodeAudioData = async (
         data: Uint8Array,
         ctx: AudioContext,
@@ -186,7 +186,6 @@ const LiveConversation: React.FC = () => {
                    const base64Audio = message.serverContent?.modelTurn?.parts?.[0]?.inlineData?.data;
                    if (base64Audio && outputAudioContextRef.current) {
                        nextStartTime = Math.max(nextStartTime, outputAudioContextRef.current.currentTime);
-                       // FIX: Pass sample rate and channel count to decodeAudioData.
                        const audioBuffer = await decodeAudioData(decode(base64Audio), outputAudioContextRef.current, 24000, 1);
                        const source = outputAudioContextRef.current.createBufferSource();
                        source.buffer = audioBuffer;
@@ -195,13 +194,11 @@ const LiveConversation: React.FC = () => {
                        nextStartTime += audioBuffer.duration;
                    }
                 },
-                // FIX: Correctly type the error event as ErrorEvent.
                 onerror: (e: ErrorEvent) => {
                     console.error('Live session error event:', e);
                     setStatus('error');
                     stopConversation();
                 },
-                // FIX: Correctly type the close event as CloseEvent.
                 onclose: (e: CloseEvent) => {
                     console.log(`Live session closed: code=${e.code}, reason='${e.reason}', wasClean=${e.wasClean}`);
                     // This can be called when stopConversation is called, so check isTalking status
@@ -229,10 +226,10 @@ const LiveConversation: React.FC = () => {
 
     const getStatusText = () => {
         switch (status) {
-            case 'idle': return 'Click the button to start talking with Vishnu.';
-            case 'connecting': return 'Connecting to Vishnu...';
+            case 'idle': return 'Click the button to start talking with Sona.';
+            case 'connecting': return 'Connecting to Sona...';
             case 'listening': return 'Listening...';
-            case 'responding': return 'Vishnu is responding...';
+            case 'responding': return 'Sona is responding...';
             case 'error': return 'Connection error. Check console & network, and ensure API key is valid.';
             default: return '';
         }
@@ -245,12 +242,12 @@ const LiveConversation: React.FC = () => {
                     <div key={index} className="mb-4">
                         <p className="text-cyan-300 font-semibold">You:</p>
                         <p className="text-gray-300 ml-4">{turn.user}</p>
-                        <p className="text-purple-300 font-semibold mt-2">Vishnu:</p>
+                        <p className="text-purple-300 font-semibold mt-2">Sona:</p>
                         <p className="text-gray-300 ml-4">{turn.model}</p>
                     </div>
                 ))}
                  {userTranscript && <div className="text-cyan-300/70">You: {userTranscript}</div>}
-                 {modelTranscript && <div className="text-purple-300/70">Vishnu: {modelTranscript}</div>}
+                 {modelTranscript && <div className="text-purple-300/70">Sona: {modelTranscript}</div>}
             </div>
 
             <div className="w-full bg-gray-800 border-x border-b border-gray-700 rounded-b-xl p-6 flex flex-col items-center">

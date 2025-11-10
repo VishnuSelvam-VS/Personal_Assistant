@@ -2,7 +2,8 @@ import React, { useState, useCallback } from 'react';
 import { debugCode } from '../services/geminiService';
 import { CodeIcon } from '../components/icons/CodeIcon';
 import { SendIcon } from '../components/icons/SendIcon';
-import { VishnuIcon } from '../components/icons/VishnuIcon';
+import { SonaIcon } from '../components/icons/VishnuIcon';
+import { CopyIcon } from '../components/icons/CopyIcon';
 
 const languages = [
     "javascript", "python", "typescript", "java", "csharp", "cpp", "php", "go", "rust", "kotlin", "swift", "html", "css", "sql"
@@ -15,6 +16,7 @@ const CodeAssistant: React.FC = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [result, setResult] = useState<string | null>(null);
     const [error, setError] = useState<string | null>(null);
+    const [copiedBlockIndex, setCopiedBlockIndex] = useState<number | null>(null);
 
     const handleDebug = useCallback(async () => {
         if (!code.trim() || !issue.trim()) {
@@ -36,18 +38,41 @@ const CodeAssistant: React.FC = () => {
         }
     }, [code, language, issue]);
 
+    const handleCopyCode = (codeToCopy: string, index: number) => {
+        navigator.clipboard.writeText(codeToCopy);
+        setCopiedBlockIndex(index);
+        setTimeout(() => {
+            setCopiedBlockIndex(null);
+        }, 2000); // Reset after 2 seconds
+    };
+
     const renderResponse = (responseText: string) => {
         const parts = responseText.split(/(```(?:\w+\n)?[\s\S]*?```)/g);
         return parts.map((part, index) => {
             if (part.startsWith('```')) {
-                const codeContent = part.replace(/```(?:\w+\n)?|```/g, '');
+                const codeContent = part.replace(/```(?:\w+\n)?|```/g, '').trim();
+                const lang = part.match(/```(\w+)/)?.[1] || 'Code';
+
                 return (
                     <div key={index} className="bg-black/50 my-4 rounded-lg border border-gray-700">
-                        <div className="px-4 py-2 bg-gray-800/50 rounded-t-lg text-xs text-gray-400">
-                            {part.match(/```(\w+)/)?.[1] || 'Code'}
+                        <div className="flex justify-between items-center px-4 py-2 bg-gray-800/50 rounded-t-lg text-xs text-gray-400">
+                            <span>{lang}</span>
+                             <button
+                                onClick={() => handleCopyCode(codeContent, index)}
+                                className="flex items-center gap-1.5 text-xs font-medium px-2 py-1 rounded bg-gray-700/50 hover:bg-gray-600/50 text-gray-300 hover:text-white transition-colors"
+                            >
+                                {copiedBlockIndex === index ? (
+                                    'Copied!'
+                                ) : (
+                                    <>
+                                        <CopyIcon className="w-4 h-4" />
+                                        Copy Code
+                                    </>
+                                )}
+                            </button>
                         </div>
                         <pre className="p-4 overflow-x-auto">
-                            <code className="text-sm font-mono">{codeContent.trim()}</code>
+                            <code className="text-sm font-mono">{codeContent}</code>
                         </pre>
                     </div>
                 );
@@ -112,12 +137,12 @@ const CodeAssistant: React.FC = () => {
 
             <div className="bg-gray-800/50 border border-gray-700 rounded-xl flex flex-col">
                 <div className="p-4 border-b border-gray-700">
-                    <h3 className="font-semibold text-cyan-300">Vishnu's Analysis</h3>
+                    <h3 className="font-semibold text-cyan-300">Sona's Analysis</h3>
                 </div>
                 <div className="flex-1 overflow-y-auto p-4 prose prose-invert prose-sm max-w-none text-gray-300">
                    {isLoading && (
                         <div className="flex flex-col items-center justify-center h-full text-gray-400">
-                            <VishnuIcon className="w-16 h-16 animate-pulse" />
+                            <SonaIcon className="w-16 h-16 animate-pulse" />
                             <p className="mt-4">Analyzing your code...</p>
                         </div>
                    )}

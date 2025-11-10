@@ -1,3 +1,4 @@
+
 import React, { useState, useCallback } from 'react';
 import { Feature } from './types';
 import Sidebar from './components/Sidebar';
@@ -8,10 +9,12 @@ import VideoGenerator from './features/VideoGenerator';
 import VideoAnalyzer from './features/VideoAnalyzer';
 import LiveConversation from './features/LiveConversation';
 import CodeAssistant from './features/CodeAssistant';
-import { VishnuIcon } from './components/icons/VishnuIcon';
+import { SonaIcon } from './components/icons/VishnuIcon';
+import { MenuIcon } from './components/icons/MenuIcon';
 
 const App: React.FC = () => {
   const [activeFeature, setActiveFeature] = useState<Feature>(Feature.CHAT);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const renderFeature = useCallback(() => {
     switch (activeFeature) {
@@ -34,20 +37,46 @@ const App: React.FC = () => {
     }
   }, [activeFeature]);
 
+  const handleFeatureSelect = (feature: Feature) => {
+    setActiveFeature(feature);
+    if (window.innerWidth < 768) {
+      setIsSidebarOpen(false);
+    }
+  };
+
   return (
-    <div className="flex h-screen bg-black/30 text-gray-100 font-sans">
-      <Sidebar activeFeature={activeFeature} setActiveFeature={setActiveFeature} />
-      <main className="flex-1 flex flex-col overflow-hidden bg-gray-900/50 backdrop-blur-xl rounded-l-2xl border-l border-t border-b border-white/10 my-2">
-        <header className="flex items-center justify-between p-4 border-b border-white/10 bg-black/20">
-          <h1 className="text-xl font-bold text-cyan-400">{activeFeature}</h1>
+    <div className="flex h-full w-full bg-black/30 text-gray-100 font-sans relative">
+      {/* Overlay for mobile */}
+      {isSidebarOpen && (
+        <div 
+          className="md:hidden fixed inset-0 bg-black/50 z-10"
+          onClick={() => setIsSidebarOpen(false)}
+        ></div>
+      )}
+
+      <Sidebar 
+        activeFeature={activeFeature} 
+        setActiveFeature={handleFeatureSelect} 
+        isOpen={isSidebarOpen}
+        setIsOpen={setIsSidebarOpen}
+      />
+      
+      <main className="flex-1 flex flex-col overflow-hidden md:bg-gray-900/50 md:backdrop-blur-xl md:rounded-l-2xl md:border-l md:border-t md:border-b border-white/10 md:my-2">
+        <header className="flex items-center justify-between p-4 border-b border-white/10 bg-black/20 md:bg-transparent">
            <div className="flex items-center gap-3">
-             <span className="text-2xl font-bold tracking-wider bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 to-purple-500">
-                VISHNU
+             <button onClick={() => setIsSidebarOpen(!isSidebarOpen)} className="md:hidden p-2 -ml-2">
+                <MenuIcon className="w-6 h-6"/>
+             </button>
+             <h1 className="text-xl font-bold text-cyan-400">{activeFeature}</h1>
+           </div>
+           <div className="flex items-center gap-3">
+             <span className="hidden sm:inline text-2xl font-bold tracking-wider bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 to-purple-500">
+                SONA
              </span>
-             <VishnuIcon className="w-8 h-8"/>
+             <SonaIcon className="w-8 h-8"/>
            </div>
         </header>
-        <div className="flex-1 overflow-y-auto p-4 md:p-6">
+        <div className="flex-1 overflow-y-auto p-2 sm:p-4 md:p-6">
           {renderFeature()}
         </div>
       </main>

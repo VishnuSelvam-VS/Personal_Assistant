@@ -1,5 +1,5 @@
 {
-  "name": "Vishnu Personal Assistant",
+  "name": "Sona Personal Assistant",
   "description": "A powerful personal assistant app powered by Google's Gemini API, offering features like chat, image/video generation, live conversation, and grounded search.",
   "requestFramePermissions": [
     "microphone",
