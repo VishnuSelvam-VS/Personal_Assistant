@@ -5,7 +5,6 @@ export enum Feature {
   LIVE_CONVERSATION = 'Live Conversation',
   IMAGE_GENERATOR = 'Image Generator',
   IMAGE_EDITOR = 'Image Editor',
-  VIDEO_GENERATOR = 'Video Generator',
   VIDEO_ANALYZER = 'Video Analyzer',
   CODE_ASSISTANT = 'Code Assistant',
 }

@@ -3,7 +3,7 @@ import { ChatMessage, GroundingChunk } from '../types';
 import { generateText, generateWithSearch, generateWithMaps, generateSpeech, openApplicationFunctionDeclaration, generateImage, generateTextWithImage } from '../services/geminiService';
 import { handleOpenApplication, fileToBase64 } from '../utils/helpers';
 import { UserIcon } from '../components/icons/UserIcon';
-import { SonaIcon } from '../components/icons/VishnuIcon';
+import { SonaIcon } from '../components/icons/SonaIcon';
 import { SendIcon } from '../components/icons/SendIcon';
 import { GlobeIcon } from '../components/icons/GlobeIcon';
 import { MapPinIcon } from '../components/icons/MapPinIcon';

@@ -1,4 +1,4 @@
-import { GoogleGenAI, GenerateContentResponse, Chat, Modality, Type, LiveServerMessage, GenerateVideosOperation, GenerateContentParameters, FunctionDeclaration } from "@google/genai";
+import { GoogleGenAI, GenerateContentResponse, Chat, Modality, Type, LiveServerMessage, GenerateContentParameters, FunctionDeclaration, GenerateVideosOperation } from "@google/genai";
 import { AspectRatio } from '../types';
 
 export const getAi = () => new GoogleGenAI({ apiKey: process.env.API_KEY });
@@ -182,8 +182,12 @@ export const editImage = async (base64Image: string, mimeType: string, prompt: s
 };
 
 // Video Generation
-export const generateVideo = async (prompt: string, aspectRatio: AspectRatio, image?: { base64: string; mimeType: string }): Promise<GenerateVideosOperation> => {
-    const ai = getAi(); // Always get a fresh instance for Veo
+export const generateVideo = async (
+    prompt: string,
+    aspectRatio: AspectRatio,
+    image?: { base64: string, mimeType: string }
+): Promise<GenerateVideosOperation> => {
+    const ai = getAi();
     return await ai.models.generateVideos({
         model: 'veo-3.1-fast-generate-preview',
         prompt,
@@ -192,15 +196,14 @@ export const generateVideo = async (prompt: string, aspectRatio: AspectRatio, im
             numberOfVideos: 1,
             resolution: '720p',
             aspectRatio: aspectRatio,
-        },
+        }
     });
 };
 
 export const checkVideoOperation = async (operation: GenerateVideosOperation): Promise<GenerateVideosOperation> => {
     const ai = getAi();
-    return await ai.operations.getVideosOperation({ operation });
+    return await ai.operations.getVideosOperation({ operation: operation });
 };
-
 
 // Video Analysis
 export const analyzeVideo = async (frames: string[], prompt: string): Promise<GenerateContentResponse> => {

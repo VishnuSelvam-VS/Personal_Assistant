@@ -5,11 +5,10 @@ import Sidebar from './components/Sidebar';
 import Chat from './features/Chat';
 import ImageGenerator from './features/ImageGenerator';
 import ImageEditor from './features/ImageEditor';
-import VideoGenerator from './features/VideoGenerator';
 import VideoAnalyzer from './features/VideoAnalyzer';
 import LiveConversation from './features/LiveConversation';
 import CodeAssistant from './features/CodeAssistant';
-import { SonaIcon } from './components/icons/VishnuIcon';
+import { SonaIcon } from './components/icons/SonaIcon';
 import { MenuIcon } from './components/icons/MenuIcon';
 
 const App: React.FC = () => {
@@ -24,8 +23,6 @@ const App: React.FC = () => {
         return <ImageGenerator />;
       case Feature.IMAGE_EDITOR:
         return <ImageEditor />;
-      case Feature.VIDEO_GENERATOR:
-        return <VideoGenerator />;
       case Feature.VIDEO_ANALYZER:
         return <VideoAnalyzer />;
       case Feature.LIVE_CONVERSATION:

@@ -1,4 +1,5 @@
 
+
 import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { GenerateVideosOperation } from '@google/genai';
 import { generateVideo, checkVideoOperation } from '../services/geminiService';
@@ -8,7 +9,8 @@ import { VideoIcon } from '../components/icons/VideoIcon';
 import { UploadIcon } from '../components/icons/UploadIcon';
 import { KeyIcon } from '../components/icons/KeyIcon';
 
-const aspectRatios: AspectRatio[] = ["16:9", "9:16", "1:1", "4:3", "3:4"];
+// FIX: The Veo model only supports '16:9' and '9:16' aspect ratios for video generation.
+const aspectRatios: AspectRatio[] = ["16:9", "9:16"];
 
 const loadingMessages = [
     "Summoning digital actors...",

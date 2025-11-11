@@ -3,10 +3,9 @@ import { Feature } from '../types';
 import { ChatIcon } from './icons/ChatIcon';
 import { ImageIcon } from './icons/ImageIcon';
 import { EditIcon } from './icons/EditIcon';
-import { VideoIcon } from './icons/VideoIcon';
 import { FilmIcon } from './icons/FilmIcon';
 import { MicIcon } from './icons/MicIcon';
-import { SonaIcon } from './icons/VishnuIcon';
+import { SonaIcon } from './icons/SonaIcon';
 import { CodeIcon } from './icons/CodeIcon';
 import { CloseIcon } from './icons/CloseIcon';
 
@@ -47,7 +46,6 @@ const Sidebar: React.FC<SidebarProps> = ({ activeFeature, setActiveFeature, isOp
     { feature: Feature.CODE_ASSISTANT, icon: <CodeIcon className="w-5 h-5" />, label: 'Code Assistant' },
     { feature: Feature.IMAGE_GENERATOR, icon: <ImageIcon className="w-5 h-5" />, label: 'Image Generator' },
     { feature: Feature.IMAGE_EDITOR, icon: <EditIcon className="w-5 h-5" />, label: 'Image Editor' },
-    { feature: Feature.VIDEO_GENERATOR, icon: <VideoIcon className="w-5 h-5" />, label: 'Video Generator' },
     { feature: Feature.VIDEO_ANALYZER, icon: <FilmIcon className="w-5 h-5" />, label: 'Video Analyzer' },
   ];
 

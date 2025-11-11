@@ -2,7 +2,7 @@ import React, { useState, useCallback } from 'react';
 import { debugCode } from '../services/geminiService';
 import { CodeIcon } from '../components/icons/CodeIcon';
 import { SendIcon } from '../components/icons/SendIcon';
-import { SonaIcon } from '../components/icons/VishnuIcon';
+import { SonaIcon } from '../components/icons/SonaIcon';
 import { CopyIcon } from '../components/icons/CopyIcon';
 
 const languages = [
