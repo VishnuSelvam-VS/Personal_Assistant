@@ -22,6 +22,9 @@ const LiveConversation: React.FC = () => {
     
     const userTranscriptRef = useRef('');
     const modelTranscriptRef = useRef('');
+
+    const sourcesRef = useRef(new Set<AudioBufferSourceNode>());
+    const nextStartTimeRef = useRef(0);
     
     // --- Audio Utility Functions ---
     const encode = (bytes: Uint8Array): string => {
@@ -75,11 +78,7 @@ const LiveConversation: React.FC = () => {
     };
 
     // --- Core Logic ---
-    const stopConversation = useCallback(() => {
-        if (sessionRef.current) {
-            sessionRef.current.close();
-            sessionRef.current = null;
-        }
+    const handleCleanup = useCallback(() => {
         if (streamRef.current) {
             streamRef.current.getTracks().forEach(track => track.stop());
             streamRef.current = null;
@@ -101,9 +100,22 @@ const LiveConversation: React.FC = () => {
             outputAudioContextRef.current = null;
         }
         
+        sourcesRef.current.forEach(source => source.stop());
+        sourcesRef.current.clear();
+        nextStartTimeRef.current = 0;
+
+        sessionRef.current = null;
         setIsTalking(false);
         setStatus('idle');
     }, []);
+
+    const stopConversation = useCallback(() => {
+        if (sessionRef.current) {
+            sessionRef.current.close();
+        } else {
+            handleCleanup();
+        }
+    }, [handleCleanup]);
     
     const startConversation = useCallback(async () => {
         if (isTalking) return;
@@ -125,7 +137,7 @@ const LiveConversation: React.FC = () => {
             outputAudioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)({ sampleRate: 24000 });
             if (outputAudioContextRef.current.state === 'suspended') await outputAudioContextRef.current.resume();
 
-            let nextStartTime = 0;
+            nextStartTimeRef.current = 0;
 
             const sessionPromise = connectLive({
                 onopen: () => {
@@ -185,26 +197,37 @@ const LiveConversation: React.FC = () => {
                    }
                    const base64Audio = message.serverContent?.modelTurn?.parts?.[0]?.inlineData?.data;
                    if (base64Audio && outputAudioContextRef.current) {
-                       nextStartTime = Math.max(nextStartTime, outputAudioContextRef.current.currentTime);
+                       nextStartTimeRef.current = Math.max(nextStartTimeRef.current, outputAudioContextRef.current.currentTime);
                        const audioBuffer = await decodeAudioData(decode(base64Audio), outputAudioContextRef.current, 24000, 1);
                        const source = outputAudioContextRef.current.createBufferSource();
                        source.buffer = audioBuffer;
                        source.connect(outputAudioContextRef.current.destination);
-                       source.start(nextStartTime);
-                       nextStartTime += audioBuffer.duration;
+                       
+                       source.addEventListener('ended', () => {
+                         sourcesRef.current.delete(source);
+                       });
+
+                       source.start(nextStartTimeRef.current);
+                       nextStartTimeRef.current += audioBuffer.duration;
+                       sourcesRef.current.add(source);
+                   }
+                   const interrupted = message.serverContent?.interrupted;
+                   if (interrupted) {
+                       sourcesRef.current.forEach(source => {
+                           source.stop();
+                       });
+                       sourcesRef.current.clear();
+                       nextStartTimeRef.current = 0;
                    }
                 },
                 onerror: (e: ErrorEvent) => {
                     console.error('Live session error event:', e);
                     setStatus('error');
-                    stopConversation();
+                    handleCleanup();
                 },
                 onclose: (e: CloseEvent) => {
                     console.log(`Live session closed: code=${e.code}, reason='${e.reason}', wasClean=${e.wasClean}`);
-                    // This can be called when stopConversation is called, so check isTalking status
-                    if(isTalking) {
-                       stopConversation();
-                    }
+                    handleCleanup();
                 },
             });
 
@@ -213,15 +236,14 @@ const LiveConversation: React.FC = () => {
         } catch (err) {
             console.error('Failed to start conversation:', err);
             setStatus('error');
-            stopConversation();
+            handleCleanup();
         }
 
-    }, [isTalking, stopConversation]);
+    }, [isTalking, handleCleanup]);
 
     useEffect(() => {
       return () => stopConversation();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
+    }, [stopConversation]);
     
 
     const getStatusText = () => {

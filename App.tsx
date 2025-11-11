@@ -1,4 +1,5 @@
 
+
 import React, { useState, useCallback } from 'react';
 import { Feature } from './types';
 import Sidebar from './components/Sidebar';
@@ -10,10 +11,12 @@ import LiveConversation from './features/LiveConversation';
 import CodeAssistant from './features/CodeAssistant';
 import { SonaIcon } from './components/icons/SonaIcon';
 import { MenuIcon } from './components/icons/MenuIcon';
+import { useAuth } from './contexts/AuthContext';
 
 const App: React.FC = () => {
   const [activeFeature, setActiveFeature] = useState<Feature>(Feature.CHAT);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const { logout } = useAuth();
 
   const renderFeature = useCallback(() => {
     switch (activeFeature) {
@@ -25,6 +28,7 @@ const App: React.FC = () => {
         return <ImageEditor />;
       case Feature.VIDEO_ANALYZER:
         return <VideoAnalyzer />;
+      // Fix: Corrected typo from LIVE_CONVERSION to LIVE_CONVERSATION to match the Feature enum.
       case Feature.LIVE_CONVERSATION:
         return <LiveConversation />;
       case Feature.CODE_ASSISTANT:
@@ -56,6 +60,7 @@ const App: React.FC = () => {
         setActiveFeature={handleFeatureSelect} 
         isOpen={isSidebarOpen}
         setIsOpen={setIsSidebarOpen}
+        logout={logout}
       />
       
       <main className="flex-1 flex flex-col overflow-hidden md:bg-gray-900/50 md:backdrop-blur-xl md:rounded-l-2xl md:border-l md:border-t md:border-b border-white/10 md:my-2">
