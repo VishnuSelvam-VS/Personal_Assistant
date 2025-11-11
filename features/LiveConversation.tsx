@@ -248,10 +248,10 @@ const LiveConversation: React.FC = () => {
 
     const getStatusText = () => {
         switch (status) {
-            case 'idle': return 'Click the button to start talking with Sona.';
-            case 'connecting': return 'Connecting to Sona...';
+            case 'idle': return 'Click the button to start talking with Red.';
+            case 'connecting': return 'Connecting to Red...';
             case 'listening': return 'Listening...';
-            case 'responding': return 'Sona is responding...';
+            case 'responding': return 'Red is responding...';
             case 'error': return 'Connection error. Check console & network, and ensure API key is valid.';
             default: return '';
         }
@@ -264,12 +264,12 @@ const LiveConversation: React.FC = () => {
                     <div key={index} className="mb-4">
                         <p className="text-cyan-300 font-semibold">You:</p>
                         <p className="text-gray-300 ml-4">{turn.user}</p>
-                        <p className="text-purple-300 font-semibold mt-2">Sona:</p>
+                        <p className="text-purple-300 font-semibold mt-2">Red:</p>
                         <p className="text-gray-300 ml-4">{turn.model}</p>
                     </div>
                 ))}
                  {userTranscript && <div className="text-cyan-300/70">You: {userTranscript}</div>}
-                 {modelTranscript && <div className="text-purple-300/70">Sona: {modelTranscript}</div>}
+                 {modelTranscript && <div className="text-purple-300/70">Red: {modelTranscript}</div>}
             </div>
 
             <div className="w-full bg-gray-800 border-x border-b border-gray-700 rounded-b-xl p-6 flex flex-col items-center">

@@ -2,7 +2,7 @@ import React, { useState, useCallback } from 'react';
 import { debugCode } from '../services/geminiService';
 import { CodeIcon } from '../components/icons/CodeIcon';
 import { SendIcon } from '../components/icons/SendIcon';
-import { SonaIcon } from '../components/icons/SonaIcon';
+import { RedIcon } from '../components/icons/VisIcon';
 import { CopyIcon } from '../components/icons/CopyIcon';
 
 const languages = [
@@ -137,12 +137,12 @@ const CodeAssistant: React.FC = () => {
 
             <div className="bg-gray-800/50 border border-gray-700 rounded-xl flex flex-col">
                 <div className="p-4 border-b border-gray-700">
-                    <h3 className="font-semibold text-cyan-300">Sona's Analysis</h3>
+                    <h3 className="font-semibold text-cyan-300">Red's Analysis</h3>
                 </div>
                 <div className="flex-1 overflow-y-auto p-4 prose prose-invert prose-sm max-w-none text-gray-300">
                    {isLoading && (
                         <div className="flex flex-col items-center justify-center h-full text-gray-400">
-                            <SonaIcon className="w-16 h-16 animate-pulse" />
+                            <RedIcon className="w-16 h-16 animate-pulse" />
                             <p className="mt-4">Analyzing your code...</p>
                         </div>
                    )}

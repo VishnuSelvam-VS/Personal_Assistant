@@ -1,6 +1,6 @@
 import React, { useState, useRef, FormEvent, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { SonaIcon } from '../components/icons/SonaIcon';
+import { RedIcon } from '../components/icons/VisIcon';
 import { MailIcon } from '../components/icons/MailIcon';
 import { CloseIcon } from '../components/icons/CloseIcon';
 
@@ -109,7 +109,7 @@ const Auth: React.FC = () => {
             case 'login': return (
                 <>
                     <h1 className="text-2xl font-bold text-center text-cyan-300">Welcome Back</h1>
-                    <p className="text-center text-gray-400 text-sm mb-6">Sign in to continue with Sona</p>
+                    <p className="text-center text-gray-400 text-sm mb-6">Sign in to continue with Red</p>
                     <div className="space-y-4">
                         <input ref={emailRef} type="email" placeholder="Email" required className="input-field" />
                         <input ref={passwordRef} type="password" placeholder="Password" required className="input-field" />
@@ -226,7 +226,7 @@ const Auth: React.FC = () => {
         <Notification notification={notification} onDismiss={() => setNotification(prev => ({ ...prev, show: false }))} />
         <div className="w-full max-w-md">
              <div className="flex justify-center mb-6">
-                <SonaIcon className="w-20 h-20"/>
+                <RedIcon className="w-20 h-20"/>
             </div>
             <div className="bg-black/30 backdrop-blur-xl p-8 rounded-2xl border border-white/10 shadow-2xl">
                 <form onSubmit={handleSubmit}>

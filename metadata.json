@@ -1,6 +1,6 @@
 {
-  "name": "Sona Personal Assistant",
-  "description": "A powerful personal assistant app named Sona, powered by Google's Gemini API, offering features like chat, image generation & editing, live conversation, and grounded search.",
+  "name": "Red Personal Assistant",
+  "description": "A powerful personal assistant app named Red, powered by Google's Gemini API, offering features like chat, image generation & editing, live conversation, and grounded search.",
   "requestFramePermissions": [
     "microphone",
     "geolocation"

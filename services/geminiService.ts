@@ -81,7 +81,7 @@ export const generateTextWithImage = async (prompt: string, base64Image: string,
 // Code Debugging
 export const debugCode = async (code: string, language: string, issue: string): Promise<GenerateContentResponse> => {
     const ai = getAi();
-    const systemInstruction = `You are an expert software developer and pair programmer named Sona. Your role is to help users debug, understand, and improve their code.
+    const systemInstruction = `You are an expert software developer and pair programmer named Red. Your role is to help users debug, understand, and improve their code.
 When given a code snippet, analyze it carefully.
 - If the user asks for a fix, provide the corrected code and a clear, concise explanation of the changes and why they were necessary.
 - If they ask for an explanation, describe what the code does, its potential issues, and suggest improvements in performance or readability.
@@ -263,7 +263,7 @@ export const connectLive = (callbacks: {
             speechConfig: {
                 voiceConfig: { prebuiltVoiceConfig: { voiceName: 'Zephyr' } },
             },
-            systemInstruction: 'You are Sona, a friendly and helpful personal assistant.',
+            systemInstruction: 'You are Red, a friendly and helpful personal assistant.',
             // Add the tool declaration to the live session config
             tools: [{ functionDeclarations: [openApplicationFunctionDeclaration] }],
         },

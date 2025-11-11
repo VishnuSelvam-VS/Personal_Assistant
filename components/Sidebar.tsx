@@ -5,7 +5,7 @@ import { ImageIcon } from './icons/ImageIcon';
 import { EditIcon } from './icons/EditIcon';
 import { FilmIcon } from './icons/FilmIcon';
 import { MicIcon } from './icons/MicIcon';
-import { SonaIcon } from './icons/SonaIcon';
+import { RedIcon } from './icons/VisIcon';
 import { CodeIcon } from './icons/CodeIcon';
 import { CloseIcon } from './icons/CloseIcon';
 import { LogoutIcon } from './icons/LogoutIcon';
@@ -56,9 +56,9 @@ const Sidebar: React.FC<SidebarProps> = ({ activeFeature, setActiveFeature, isOp
       <div>
         <div className="flex items-center justify-between gap-2 px-2 pb-6 border-b border-white/10">
            <div className="flex items-center gap-2">
-              <SonaIcon className="w-10 h-10"/>
-              <h2 className="text-2xl font-bold tracking-wider bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 to-purple-500">
-                 SONA
+              <RedIcon className="w-10 h-10"/>
+              <h2 className="text-2xl font-bold tracking-wider bg-clip-text text-transparent bg-gradient-to-r from-red-400 to-red-600">
+                 RED
               </h2>
            </div>
            <button onClick={() => setIsOpen(false)} className="md:hidden p-1">

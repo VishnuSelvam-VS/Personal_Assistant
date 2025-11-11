@@ -14,7 +14,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
     useEffect(() => {
         // Check for a persisted login state
-        const storedAuth = localStorage.getItem('isVisLoggedIn');
+        const storedAuth = localStorage.getItem('isRedLoggedIn');
         if (storedAuth === 'true') {
             setIsLoggedIn(true);
         }
@@ -28,7 +28,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         if (email && pass) {
             await new Promise(resolve => setTimeout(resolve, 500)); // Simulate network delay
             setIsLoggedIn(true);
-            localStorage.setItem('isVisLoggedIn', 'true');
+            localStorage.setItem('isRedLoggedIn', 'true');
         } else {
            throw new Error("Email and password are required.");
         }
@@ -37,7 +37,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     // Log the user out
     const logout = () => {
         setIsLoggedIn(false);
-        localStorage.removeItem('isVisLoggedIn');
+        localStorage.removeItem('isRedLoggedIn');
     };
     
     // Simulate an API call for signing up

@@ -3,7 +3,7 @@ import { ChatMessage, GroundingChunk } from '../types';
 import { generateText, generateWithSearch, generateWithMaps, generateSpeech, openApplicationFunctionDeclaration, generateImage, generateTextWithImage } from '../services/geminiService';
 import { handleOpenApplication, fileToBase64 } from '../utils/helpers';
 import { UserIcon } from '../components/icons/UserIcon';
-import { SonaIcon } from '../components/icons/SonaIcon';
+import { RedIcon } from '../components/icons/VisIcon';
 import { SendIcon } from '../components/icons/SendIcon';
 import { GlobeIcon } from '../components/icons/GlobeIcon';
 import { MapPinIcon } from '../components/icons/MapPinIcon';
@@ -68,7 +68,7 @@ const ActionCard: React.FC<{ appName: string; result: string }> = ({ appName, re
 
 const Chat: React.FC = () => {
     const [messages, setMessages] = useState<ChatMessage[]>([
-        { role: 'model', content: "I am Sona, your personal assistant. How can I help you today?" }
+        { role: 'model', content: "I am Red, your personal assistant. How can I help you today?" }
     ]);
     const [input, setInput] = useState('');
     const [isLoading, setIsLoading] = useState(false);
@@ -286,7 +286,7 @@ const Chat: React.FC = () => {
         const isUser = message.role === 'user';
         return (
             <div className={`flex items-start gap-2 sm:gap-3 my-4 ${isUser ? 'justify-end' : ''}`}>
-                {!isUser && <div className="w-8 h-8 flex-shrink-0 rounded-full bg-gradient-to-br from-cyan-500 to-purple-600 flex items-center justify-center shadow-lg"><SonaIcon className="w-5 h-5 text-white" /></div>}
+                {!isUser && <div className="w-8 h-8 flex-shrink-0 rounded-full bg-gradient-to-br from-red-500 to-red-700 flex items-center justify-center shadow-lg"><RedIcon className="w-5 h-5 text-white" /></div>}
                 <div className={`max-w-lg p-3 sm:p-4 rounded-2xl shadow-md ${isUser ? 'bg-cyan-600 text-white rounded-br-none' : 'bg-gray-700/70 backdrop-blur-sm border border-white/10 text-gray-200 rounded-bl-none'}`}>
                    {message.isThinking && <div className="text-xs text-purple-300 mb-2 font-medium flex items-center gap-2"><CpuIcon className="w-4 h-4" /> Thinking...</div>}
                    {isUser && message.image && (
@@ -310,7 +310,7 @@ const Chat: React.FC = () => {
                 {messages.map((msg, index) => <ChatMessageBubble key={index} message={msg} index={index} />)}
                 {isLoading && (
                     <div className="flex items-start gap-3 my-4">
-                        <div className="w-8 h-8 flex-shrink-0 rounded-full bg-gradient-to-br from-cyan-500 to-purple-600 flex items-center justify-center"><SonaIcon className="w-5 h-5 text-white" /></div>
+                        <div className="w-8 h-8 flex-shrink-0 rounded-full bg-gradient-to-br from-red-500 to-red-700 flex items-center justify-center"><RedIcon className="w-5 h-5 text-white" /></div>
                         <div className="max-w-xl p-4 rounded-2xl shadow-md bg-gray-700/70 backdrop-blur-sm text-gray-200 rounded-bl-none">
                             <div className="flex items-center gap-2">
                                 <div className="w-2 h-2 bg-cyan-400 rounded-full animate-pulse"></div>
@@ -352,7 +352,7 @@ const Chat: React.FC = () => {
                             }
                         }}
                         onPaste={handlePaste}
-                        placeholder={mode === 'image' ? 'Describe the image you want...' : 'Ask Sona anything...'}
+                        placeholder={mode === 'image' ? 'Describe the image you want...' : 'Ask Red anything...'}
                         className="flex-1 bg-transparent focus:outline-none resize-none p-2 text-gray-100"
                         rows={1}
                         disabled={isLoading}
